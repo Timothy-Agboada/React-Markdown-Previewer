@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 19: React Markdown Previewer</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Marked.js Library for Markdown to HTML conversion -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body class="bg-gray-100">
+
+    <div id="root"></div>
+
+    <script type="text/babel">
+
+        const defaultMarkdown = `
+# Welcome to The React Markdown Previewer!
+
+## This is a sub-heading...
+
+Heres some code:
+
+\`\`\`
+// this is multi-line code:
+
+function anotherExample(firstLine, lastLine) {
+  if (firstLine == '\`\`\`' && lastLine == '\`\`\`') {
+    return multiLineCode;
+  }
+}
+\`\`\`
+
+You can also make text **bold**...,
+_italic_.
+Or... wait for it... **_both!_**
+And feel free to go crazy ~~crossing stuff out~~.
+
+There's also [links](https://www.freecodecamp.org)
+        `;
+
+        // --- Main App Component ---
+        const App = () => {
+            // State for the markdown text
+            const [markdown, setMarkdown] = React.useState(defaultMarkdown);
+
+            // Function to handle changes in the textarea
+            const handleTextareaChange = (e) => {
+                setMarkdown(e.target.value);
+            };
+
+            return (
+                <div className="flex flex-col md:flex-row h-screen">
+                    {/* Editor Pane */}
+                    <div className="w-full md:w-1/2 h-1/2 md:h-full flex flex-col">
+                        <header className="bg-gray-600 text-white p-3 text-lg font-semibold text-center">
+                            Markdown Editor
+                        </header>
+                        <textarea
+                            value={markdown}
+                            onChange={handleTextareaChange}
+                            className="w-full h-full p-4 bg-gray-200 text-gray-800 focus:outline-none resize-none font-mono"
+                            placeholder="Enter your Markdown here..."
+                        />
+                    </div>
+
+                    {/* Preview Pane */}
+                    <div className="w-full md:w-1/2 h-1/2 md:h-full flex flex-col">
+                        <header className="bg-gray-800 text-white p-3 text-lg font-semibold text-center">
+                            HTML Preview
+                        </header>
+                        <div
+                            id="preview"
+                            className="prose lg:prose-xl p-4 bg-white w-full h-full overflow-y-auto"
+                            // It's dangerous if the source isn't trusted, but Marked.js sanitizes it.
+                            dangerouslySetInnerHTML={{ __html: marked.parse(markdown) }}
+                        />
+                    </div>
+                </div>
+            );
+        };
+        
+        // --- Tailwind CSS Prose Plugin Configuration ---
+        tailwind.config = {
+            plugins: [
+                function ({ addBase, theme }) {
+                addBase({
+                    '.prose': {
+                        'h1': { color: theme('colors.gray.800') },
+                        'h2': { color: theme('colors.gray.700') },
+                        'h3': { color: theme('colors.gray.700') },
+                        'strong': { color: theme('colors.gray.800') },
+                        'a': { color: theme('colors.blue.600'), '&:hover': { color: theme('colors.blue.800') } },
+                        'pre': { backgroundColor: theme('colors.gray.100'), color: theme('colors.gray.800') },
+                        'code': { color: theme('colors.pink.600') },
+                        'blockquote': { borderLeftColor: theme('colors.gray.300') },
+                    }
+                })
+                },
+            ]
+        }
+
+
+        // --- Rendering the App ---
+        const container = document.getElementById('root');
+        const root = ReactDOM.createRoot(container);
+        root.render(<App />);
+    </script>
+
+</body>
+</html>
